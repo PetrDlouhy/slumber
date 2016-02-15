@@ -15,6 +15,14 @@ try:
 except ImportError:
     _SERIALIZERS["yaml"] = False
 
+ordered_dict_defined = True
+try:
+    from collections import OrderedDict
+except ImportError:
+    try:
+        from ordereddict import OrderedDict
+    except ImportError:
+        ordered_dict_defined = False
 
 class BaseSerializer(object):
 
@@ -45,7 +53,10 @@ class JsonSerializer(BaseSerializer):
     key = "json"
 
     def loads(self, data):
-        return json.loads(data)
+        if ordered_dict_defined:
+            return json.loads(data, object_pairs_hook=OrderedDict)
+        else:
+            return json.loads(data)
 
     def dumps(self, data):
         return json.dumps(data)
